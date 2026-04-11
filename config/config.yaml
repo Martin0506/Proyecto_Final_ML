@@ -5,7 +5,7 @@
 # ============================================================
 
 data:
-  raw_path: "global_youtube_creator_data_large.csv"
+  raw_path: "data/raw/global_youtube_creator_data_large.csv"
   processed_path: "data/processed/data_processed.csv"
   sample_size: 100000
   random_state: 42
