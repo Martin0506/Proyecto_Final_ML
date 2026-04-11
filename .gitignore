@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Entornos virtuales
+venv/
+env/
+.env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Modelos entrenados (archivos grandes)
+models/*.joblib
+models/*.pkl
+models/*.h5
+
+# Dataset crudo grande (no versionar por tamano)
+global_youtube_creator_data_large.csv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Reportes temporales
+reports/figures/.DS_Store

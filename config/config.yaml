@@ -1,0 +1,69 @@
+
+# ============================================================
+# Configuracion general del proyecto
+# Viralidad en YouTube - CRISP-DM
+# ============================================================
+
+data:
+  raw_path: "global_youtube_creator_data_large.csv"
+  processed_path: "data/processed/data_processed.csv"
+  sample_size: 100000
+  random_state: 42
+  test_size: 0.20
+
+target:
+  name: "viralidad"
+  weights:
+    views: 0.30
+    likes: 0.25
+    comments: 0.20
+    shares: 0.25
+  threshold_percentile: 50   # percentil de corte para viral vs no viral
+
+features:
+  categorical:
+    - category
+    - language
+    - region
+  numerical:
+    - duration_sec
+    - sentiment_score
+    - likes_per_view
+    - comments_per_view
+    - shares_per_view
+    - engagement_rate
+    - hour
+    - day_of_week
+    - month
+  binary:
+    - ads_enabled
+
+models:
+  logistic_regression:
+    C: 1.0
+    max_iter: 1000
+    solver: "lbfgs"
+    random_state: 42
+
+  random_forest:
+    n_estimators: 200
+    max_depth: 12
+    min_samples_leaf: 10
+    random_state: 42
+    n_jobs: -1
+
+  gradient_boosting:
+    n_estimators: 200
+    learning_rate: 0.05
+    max_depth: 5
+    subsample: 0.8
+    random_state: 42
+
+evaluation:
+  cv_folds: 5
+  scoring:
+    - accuracy
+    - f1
+    - roc_auc
+    - precision
+    - recall
