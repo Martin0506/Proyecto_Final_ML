@@ -139,7 +139,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-
 def get_feature_columns() -> dict:
     """
     Retorna el diccionario de columnas de caracteristicas por tipo,
