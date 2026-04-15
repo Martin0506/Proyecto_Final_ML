@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 import os
+import json
 
 from sklearn.metrics import (
     classification_report,
@@ -33,22 +34,27 @@ MODEL_COLORS = {
     "Gradient Boosting"  : "#C44E52",
 }
 
+def save_tuning_report(best_models: dict, save_path: str = "reports/best_hyperparameters.json"):
+    """
+    Extrae y guarda los hiperparametros finales de los modelos optimizados.
+    """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    params_dict = {}
+    
+    for name, model in best_models.items():
+        params_dict[name] = model.get_params()
+        
+    with open(save_path, 'w') as f:
+        json.dump(params_dict, f, indent=4)
+        
+    print(f"\n[INFO] Reporte de hiperparametros guardado en: {save_path}")
+
 
 def evaluate_on_test(models: dict, X_test: np.ndarray,
                      y_test: np.ndarray) -> pd.DataFrame:
     """
     Evalua cada modelo sobre el conjunto de prueba y retorna un DataFrame
     con las metricas de clasificacion.
-
-    Parameters
-    ----------
-    models  : dict {nombre: modelo entrenado}
-    X_test  : features de prueba preprocesadas
-    y_test  : etiquetas reales
-
-    Returns
-    -------
-    pd.DataFrame con metricas por modelo.
     """
     records = []
     for name, model in models.items():
@@ -77,8 +83,7 @@ def plot_confusion_matrices(models: dict, X_test: np.ndarray,
                             y_test: np.ndarray,
                             save_path: str = "reports/figures/confusion_matrices.png"):
     """
-    Genera y guarda las matrices de confusion para los tres modelos
-    en una sola figura de 1x3.
+    Genera y guarda las matrices de confusion para los tres modelos.
     """
     fig, axes = plt.subplots(1, len(models), figsize=(5 * len(models), 4))
     fig.suptitle("Matrices de Confusion - Conjunto de Prueba", fontsize=14, fontweight="bold")
@@ -101,8 +106,7 @@ def plot_confusion_matrices(models: dict, X_test: np.ndarray,
 def plot_roc_curves(models: dict, X_test: np.ndarray, y_test: np.ndarray,
                     save_path: str = "reports/figures/roc_curves.png"):
     """
-    Genera y guarda las curvas ROC de los tres modelos superpuestas
-    para facilitar la comparacion visual.
+    Genera y guarda las curvas ROC superpuestas.
     """
     fig, ax = plt.subplots(figsize=(7, 5))
 
@@ -131,9 +135,7 @@ def plot_feature_importance(model, feature_names: list, model_name: str,
                              top_n: int = 15,
                              save_path: str = "reports/figures/feature_importance.png"):
     """
-    Grafica la importancia de caracteristicas para modelos basados en
-    arboles (RandomForest y GradientBoosting).  Para Regresion Logistica
-    grafica los coeficientes absolutos.
+    Grafica la importancia de caracteristicas para modelos.
     """
     fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -171,8 +173,7 @@ def plot_feature_importance(model, feature_names: list, model_name: str,
 def plot_cv_comparison(cv_results: pd.DataFrame,
                         save_path: str = "reports/figures/cv_comparison.png"):
     """
-    Grafica de barras comparando ROC-AUC y F1 de la validacion cruzada
-    con barras de error que muestran la desviacion estandar.
+    Grafica comparando ROC-AUC y F1 de la validacion cruzada.
     """
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
 
@@ -196,7 +197,7 @@ def plot_cv_comparison(cv_results: pd.DataFrame,
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
                     f"{val:.4f}", ha="center", va="bottom", fontsize=9)
 
-    plt.suptitle("Comparacion de Modelos - Validacion Cruzada Estratificada",
+    plt.suptitle("Comparacion de Modelos Optimizados - Validacion Cruzada Estratificada",
                  fontsize=13, fontweight="bold")
     plt.tight_layout()
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -208,8 +209,7 @@ def plot_cv_comparison(cv_results: pd.DataFrame,
 def plot_metrics_heatmap(test_results: pd.DataFrame,
                           save_path: str = "reports/figures/metrics_heatmap.png"):
     """
-    Mapa de calor con las metricas finales de los tres modelos en el
-    conjunto de prueba para una lectura rapida y comparativa.
+    Mapa de calor con las metricas finales en el conjunto de prueba.
     """
     fig, ax = plt.subplots(figsize=(8, 3))
     sns.heatmap(test_results, annot=True, fmt=".4f", cmap="YlGnBu",
