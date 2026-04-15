@@ -163,6 +163,8 @@ Los datos procesados (`data/processed/data_processed.csv`) junto con las figuras
 
 | Nombre | Universidad |
 |--------|-------------|
+| Juliana Espinel | Universidad de la Sabana |
+| Joao Muñoz | Universidad de la Sabana |
 | Martin | Universidad de la Sabana |
 
 ---
