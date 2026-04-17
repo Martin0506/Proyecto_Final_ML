@@ -1,15 +1,6 @@
-"""
-evaluation.py
--------------
-Funciones de evaluacion, metricas y visualizacion de resultados.
-
-Fase CRISP-DM: Evaluacion
-"""
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import seaborn as sns
 import os
 import json
@@ -26,8 +17,6 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay,
 )
 
-
-# Paleta consistente para los 3 modelos
 MODEL_COLORS = {
     "Regresion Logistica": "#4C72B0",
     "Random Forest"      : "#55A868",
