@@ -1,18 +1,8 @@
-"""
-data_loader.py
---------------
-Funciones para cargar y muestrear el dataset crudo.
-Fase CRISP-DM: Comprension de Datos
-"""
-
 import pandas as pd
 import numpy as np
 import yaml
-import os
-
 
 def load_config(config_path: str = "config/config.yaml") -> dict:
-    """Carga el archivo de configuracion YAML."""
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
@@ -39,7 +29,6 @@ def load_raw_data(raw_path: str, sample_size: int = None,
     print(f"[INFO] Cargando datos desde: {raw_path}")
 
     if sample_size:
-        # Lectura eficiente: cargar todo y luego muestrear
         df = pd.read_csv(raw_path, low_memory=False)
         print(f"[INFO] Dataset completo: {df.shape[0]:,} filas x {df.shape[1]} columnas")
         df = df.sample(n=sample_size, random_state=random_state).reset_index(drop=True)

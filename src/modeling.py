@@ -1,14 +1,3 @@
-"""
-modeling.py
------------
-Definicion, ajuste de hiperparametros y validacion cruzada de los tres modelos:
-  1. Regresion Logistica
-  2. Random Forest
-  3. Gradient Boosting
-
-Fase CRISP-DM: Modelado
-"""
-
 import numpy as np
 import pandas as pd
 import joblib
@@ -45,17 +34,11 @@ def get_base_models(random_state: int = 42) -> dict:
             random_state=random_state,
         ),
         "Hist Gradient Boosting": HistGradientBoostingClassifier(
-            # Implementacion basada en histogramas (equivalente a LightGBM).
-            # 5-20x mas rapido que GradientBoostingClassifier y generalmente
-            # obtiene mejor ROC-AUC gracias a bins adaptativos y regularizacion L2.
             random_state=random_state,
         ),
     }
 
 
-# ---------------------------------------------------------------------------
-# AJUSTE DE HIPERPARAMETROS (TUNING)
-# ---------------------------------------------------------------------------
 
 def get_param_distributions() -> dict:
     """
@@ -129,11 +112,6 @@ def tune_hyperparameters(models: dict, X_train: np.ndarray, y_train: np.ndarray,
 
     return best_models
 
-
-# ---------------------------------------------------------------------------
-# VALIDACION CRUZADA (EVALUACION DEL MEJOR MODELO)
-# ---------------------------------------------------------------------------
-
 def cross_validate_models(models: dict, X_train: np.ndarray,
                            y_train: np.ndarray, cv_folds: int = 5,
                            random_state: int = 42) -> pd.DataFrame:
@@ -157,7 +135,6 @@ def cross_validate_models(models: dict, X_train: np.ndarray,
         print(f"\n[CV] Validando modelo optimizado: {name} ({cv_folds} folds)...")
         t0 = time.time()
 
-        # --- CORRECCIÓN AQUÍ: return_train_score=True ---
         scores = cross_validate(
             model, X_train, y_train,
             cv=cv,
@@ -168,7 +145,6 @@ def cross_validate_models(models: dict, X_train: np.ndarray,
 
         elapsed = time.time() - t0
 
-        # --- CORRECCIÓN AQUÍ: Agregamos "Accuracy (train)" al diccionario ---
         results[name] = {
             "Accuracy (val)"    : scores["test_accuracy"].mean(),
             "Accuracy std"      : scores["test_accuracy"].std(),
@@ -187,10 +163,6 @@ def cross_validate_models(models: dict, X_train: np.ndarray,
 
     return pd.DataFrame(results).T
 
-
-# ---------------------------------------------------------------------------
-# ENTRENAMIENTO FINAL Y PERSISTENCIA
-# ---------------------------------------------------------------------------
 
 def train_and_save(model, model_name: str, X_train: np.ndarray,
                    y_train: np.ndarray, models_dir: str = "models") -> object:

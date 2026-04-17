@@ -1,17 +1,7 @@
-"""
-preprocessing.py
-----------------
-Pipeline de preprocesamiento: codificacion de categoricas,
-escalado de numericas y particion train/test.
-
-Fase CRISP-DM: Preparacion de Datos
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 import joblib
