@@ -122,17 +122,36 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     # Evitar division por cero
     views_safe = df["views"].clip(lower=1)
 
-    # --- Tasas de engagement relativo ---
+    # --- Tasas de engagement relativo (escala original) ---
     df["likes_per_view"]    = df["likes"]    / views_safe
     df["comments_per_view"] = df["comments"] / views_safe
     df["shares_per_view"]   = df["shares"]   / views_safe
     df["engagement_rate"]   = (df["likes"] + df["comments"] + df["shares"]) / views_safe
+
+    # --- Versiones log1p de los ratios (manejo de outliers extremos) ---
+    # Los ratios heredan la cola pesada de likes/views.
+    # log1p comprime valores extremos sin alterar el orden relativo,
+    # lo que mejora las particiones de los arboles y la convergencia de LR.
+    df["log_likes_per_view"]    = np.log1p(df["likes_per_view"])
+    df["log_comments_per_view"] = np.log1p(df["comments_per_view"])
+    df["log_shares_per_view"]   = np.log1p(df["shares_per_view"])
+    df["log_engagement_rate"]   = np.log1p(df["engagement_rate"])
 
     # --- Caracteristicas temporales ---
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["hour"]        = df["timestamp"].dt.hour
     df["day_of_week"] = df["timestamp"].dt.dayofweek   # 0=Lunes, 6=Domingo
     df["month"]       = df["timestamp"].dt.month
+
+    # --- Feature derivada del analisis temporal: fin de semana ---
+    df["is_weekend"] = (df["day_of_week"] >= 5).astype(int)
+
+    # --- Features de interaccion ---
+    # Capturan efectos combinados que no son linealmente separables.
+    # sentiment × engagement: contenido con buen sentimiento Y alto engagement
+    # duration × log_engagement: videos largos con alto engagement sostenido
+    df["sent_x_engagement"]  = df["sentiment_score"] * df["log_engagement_rate"]
+    df["dur_x_log_engagement"] = df["duration_sec"]  * df["log_engagement_rate"]
 
     # --- ads_enabled como entero ---
     df["ads_enabled"] = df["ads_enabled"].astype(int)
@@ -148,9 +167,15 @@ def get_feature_columns() -> dict:
         "categorical": ["category", "language", "region"],
         "numerical": [
             "duration_sec", "sentiment_score",
-            "likes_per_view", "comments_per_view",
-            "shares_per_view", "engagement_rate",
+            # Ratios en escala original
+            "likes_per_view", "comments_per_view", "shares_per_view", "engagement_rate",
+            # Ratios en escala logaritmica (manejo de outliers)
+            "log_likes_per_view", "log_comments_per_view",
+            "log_shares_per_view", "log_engagement_rate",
+            # Interacciones
+            "sent_x_engagement", "dur_x_log_engagement",
+            # Temporales
             "hour", "day_of_week", "month",
         ],
-        "binary": ["ads_enabled"],
+        "binary": ["ads_enabled", "is_weekend"],
     }

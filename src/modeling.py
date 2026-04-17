@@ -16,7 +16,8 @@ import os
 import time
 
 from sklearn.linear_model    import LogisticRegression
-from sklearn.ensemble        import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble        import (RandomForestClassifier, GradientBoostingClassifier,
+                                     HistGradientBoostingClassifier)
 from sklearn.model_selection import cross_validate, StratifiedKFold, RandomizedSearchCV
 import scipy.stats as stats
 
@@ -41,6 +42,12 @@ def get_base_models(random_state: int = 42) -> dict:
             n_jobs=-1,
         ),
         "Gradient Boosting": GradientBoostingClassifier(
+            random_state=random_state,
+        ),
+        "Hist Gradient Boosting": HistGradientBoostingClassifier(
+            # Implementacion basada en histogramas (equivalente a LightGBM).
+            # 5-20x mas rapido que GradientBoostingClassifier y generalmente
+            # obtiene mejor ROC-AUC gracias a bins adaptativos y regularizacion L2.
             random_state=random_state,
         ),
     }
@@ -70,8 +77,17 @@ def get_param_distributions() -> dict:
             "n_estimators": stats.randint(100, 300),
             "learning_rate": stats.loguniform(0.01, 0.2),
             "max_depth": stats.randint(3, 8),
-            "subsample": stats.uniform(0.7, 0.3) # 0.7 a 1.0
-        }
+            "subsample": stats.uniform(0.7, 0.3),
+            "min_samples_leaf": stats.randint(5, 30),
+        },
+        "Hist Gradient Boosting": {
+            "max_iter": stats.randint(100, 500),
+            "learning_rate": stats.loguniform(0.01, 0.3),
+            "max_depth": [None, 4, 6, 8, 10],
+            "min_samples_leaf": stats.randint(10, 100),
+            "l2_regularization": stats.loguniform(1e-3, 10.0),
+            "max_leaf_nodes": stats.randint(20, 80),
+        },
     }
 
 
